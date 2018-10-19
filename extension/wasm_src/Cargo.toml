@@ -1,0 +1,20 @@
+[package]
+name = "macro_railroad_ext"
+version = "0.1.0"
+authors = ["Lukas Lueg <lukas.lueg@gmail.com>"]
+build = "build.rs"
+
+[dependencies]
+railroad = { git = "https://github.com/lukaslueg/railroad" }
+macro_railroad = { git = "https://github.com/lukaslueg/macro_railroad" }
+stdweb = "0.4"
+htmlescape = "0.3"
+syn = "0.15"
+serde = "1.0"
+serde_derive = "1.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[build-dependencies]
+built = { version = "0.3", features=["serialized_time"], default_features=false }

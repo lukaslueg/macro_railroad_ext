@@ -1,0 +1,5 @@
+extension/wasm/macro_railroad_ext.wasm
+extension/content_scripts/macro_railroad_ext.js
+extension/wasm_src/Cargo.lock
+extension/wasm_src/target/
+extension/packed.zip
