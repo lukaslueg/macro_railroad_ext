@@ -1,5 +1,7 @@
 A `WebExtension` compatible with Chrome and Firefox to display syntax-diagrams for Rust's `macro_rules!()` on `docs.rs`.
 
+![Screenshot](./var/screenshot1.png)
+
 The extension uses [macro_railroad](https://github.com/lukaslueg/macro_railroad) to generate diagrams. The diagrams are display beneath each macro-block. Use the icons in the lower right corner to control options and expand the diagram to fullscreen.
 
 A pre-built version for Chrome is published [here](https://chrome.google.com/webstore/detail/macrorailroad/jeinhnlccpembeoccdhdpnolnmkfcblp).
