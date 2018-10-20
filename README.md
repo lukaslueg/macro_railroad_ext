@@ -1,4 +1,4 @@
-A `WebExtension` compatible with Chrome and Firefox to display syntax-diagrams for Rust's `macro_rules!()` on `docs.rs`.
+A `WebExtension` compatible with Chrome and Firefox to display syntax-diagrams for Rust's `macro_rules!()` on `docs.rs` and `doc.rust-lang.org`.
 
 **A pre-built version for Chrome is published [here](https://chrome.google.com/webstore/detail/macrorailroad/jeinhnlccpembeoccdhdpnolnmkfcblp).**
 
