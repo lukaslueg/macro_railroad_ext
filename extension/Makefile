@@ -13,7 +13,7 @@ wasm/macro_railroad_ext.wasm: wasm_src/target/deploy/macro_railroad_ext.wasm | w
 	cp $< $@
 
 content_scripts/macro_railroad_ext.js: wasm_src/target/deploy/macro_railroad_ext.js
-	sed 's/fetch( "macro_railroad_ext\.wasm"/fetch( chrome.runtime.getURL( "wasm\/macro_railroad_ext.wasm" )/;s/\(console\.log( "Finished\)/\/\/\1/' $< > $@
+	sed 's/fetch( "macro_railroad_ext\.wasm"/fetch( chrome.runtime.getURL( "wasm\/macro_railroad_ext.wasm" )/;s/instantiateStreaming === "function"/instantiateStreaming === "Fails_In_Firefox_On_Linux"/;s/\(console\.log( "Finished\)/\/\/\1/' $< > $@
 
 packed.zip: manifest.json assets/fullscreen.svg assets/macro_railroad_ext.css assets/options.svg content_scripts/macro_railroad_ext.js content_scripts/main.js icons/icon48.png icons/icon96.png options/options.html wasm/macro_railroad_ext.wasm
 	zip $@ $?
