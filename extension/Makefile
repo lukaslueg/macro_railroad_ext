@@ -4,7 +4,7 @@ wasm_src/Cargo.lock:
 	cd wasm_src && cargo update
 
 wasm_src/target/deploy/macro_railroad_ext.js wasm_src/target/deploy/macro_railroad_ext.wasm: wasm_src/Cargo.lock wasm_src/Cargo.toml wasm_src/Web.toml wasm_src/build.rs wasm_src/src/lib.rs
-	cd wasm_src && cargo +nightly web deploy
+	cd wasm_src && cargo web deploy
 
 wasm:
 	mkdir $@
