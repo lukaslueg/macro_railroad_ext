@@ -5,7 +5,7 @@ authors = ["Lukas Lueg <lukas.lueg@gmail.com>"]
 build = "build.rs"
 
 [dependencies]
-railroad = { git = "https://github.com/lukaslueg/railroad" }
+railroad = "0.1"
 macro_railroad = { git = "https://github.com/lukaslueg/macro_railroad" }
 stdweb = "0.4"
 htmlescape = "0.3"
