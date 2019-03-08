@@ -3,3 +3,5 @@ extension/content_scripts/macro_railroad_ext.js
 extension/wasm_src/Cargo.lock
 extension/wasm_src/target/
 extension/packed.zip
+extension/integration_test/Cargo.lock
+extension/integration_test/target

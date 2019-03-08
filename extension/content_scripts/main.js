@@ -20,6 +20,9 @@ Rust.macro_railroad_ext.then( function( railroad ) {
                                show_legend: true };
 
         var newNode = document.createElement("div");
+        var parentNode = macroNodes[idx].parentNode;
+
+        newNode.appendChild(macroNodes[idx]);
 
         // The modal, starts as hidden
         var modalDiagramNodeContent = document.createElement("div");
@@ -78,6 +81,7 @@ Rust.macro_railroad_ext.then( function( railroad ) {
             var inputItem = document.createElement("input");
             inputItem.type = "checkbox";
             inputItem.checked = diagramOptions[key];
+            inputItem.id = "railroad_" + key + idx;
             inputItem.addEventListener("change", function(event) {
                 diagramOptions[key] = inputItem.checked;
                 update_diagram();
@@ -85,7 +89,7 @@ Rust.macro_railroad_ext.then( function( railroad ) {
             listItem.appendChild(inputItem);
             var labelItem = document.createElement("label");
             labelItem.style.paddingLeft = "8px";
-            labelItem.htmlFor = inputItem;
+            labelItem.htmlFor = inputItem.id;
             labelItem.innerText = label;
             listItem.appendChild(labelItem);
             optionsList.appendChild(listItem);
@@ -119,7 +123,8 @@ Rust.macro_railroad_ext.then( function( railroad ) {
 
         svgContainer.appendChild(iconsNode);
 
-        macroNodes[idx].parentNode.insertBefore(newNode, macroNodes[idx].nextSibling);
+        parentNode.appendChild(newNode);
+        //macroNodes[idx].parentNode.insertBefore(newNode, macroNodes[idx].nextSibling);
 
         update_diagram();
     }

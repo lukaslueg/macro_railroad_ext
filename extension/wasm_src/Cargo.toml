@@ -6,7 +6,7 @@ build = "build.rs"
 
 [dependencies]
 railroad = "0.1"
-macro_railroad = { git = "https://github.com/lukaslueg/macro_railroad" }
+macro_railroad = "0.1"
 stdweb = "0.4"
 htmlescape = "0.3"
 syn = "0.15"
