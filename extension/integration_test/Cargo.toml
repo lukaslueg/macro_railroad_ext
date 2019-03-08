@@ -10,3 +10,4 @@ headless_chrome = { git = "https://github.com/atroche/rust-headless-chrome" }
 tempdir = "0.3"
 zip = "0.5"
 failure = "0.1"
+env_logger = "0.6"

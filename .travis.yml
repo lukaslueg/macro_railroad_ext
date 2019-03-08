@@ -1,0 +1,18 @@
+language: rust
+
+rust:
+    - stable
+
+addons:
+  chrome: stable
+
+services:
+    - xvfb
+
+before_script:
+    - rustup target add wasm32-unknown-unknown
+    - cargo install cargo-web
+
+script:
+    - env RUST_BACKTRACE=1 RUST_LOG=headless_chrome=debug xvfb-run -s "-screen 0 1600x1400x24" make -C extension test
+
