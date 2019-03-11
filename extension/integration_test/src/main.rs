@@ -1,6 +1,11 @@
 const DIAGRAM_CONTAINER: &str =
     "#main > div.docblock.type-decl > div > div > div.railroad_container";
+const OPTIONS: &str =
+    "#main > div.docblock.type-decl > div > div > div.railroad_container > div > div > img";
+const OPT_FULLSCREEN: &str =
+    "#main > div.docblock.type-decl > div > div > div.railroad_container > div > img";
 const URL_PANIC: &str = "https://doc.rust-lang.org/std/macro.panic.html";
+const URL_NAMED: &str = "https://docs.rs/nom/4.2.2/nom/macro.named_attr.html";
 
 struct Browser {
     _ext: tempdir::TempDir,
@@ -68,34 +73,40 @@ impl std::ops::Deref for Browser {
 fn main() -> Result<(), failure::Error> {
     let browser = Browser::new()?;
 
-    let screenshot = |url: &str, fname: &str| -> Result<(), failure::Error> {
-        let tab = browser.navigate_to_macro_page(url)?;
-        let png_data = tab.capture_screenshot(
-            headless_chrome::protocol::page::ScreenshotFormat::PNG,
-            None,
-            true,
-        )?;
-        std::fs::write(fname, &png_data)?;
-        Ok(())
-    };
+    let screenshot =
+        |tab: std::sync::Arc<headless_chrome::Tab>, fname: &str| -> Result<(), failure::Error> {
+            let png_data = tab.capture_screenshot(
+                headless_chrome::protocol::page::ScreenshotFormat::PNG,
+                None,
+                true,
+            )?;
+            std::fs::write(fname, &png_data)?;
+            Ok(())
+        };
 
-    screenshot(URL_PANIC, "std_panic.png")?;
+    screenshot(browser.navigate_to_macro_page(URL_PANIC)?, "std_panic.png")?;
+
     screenshot(
-        "https://docs.rs/nom/4.2.2/nom/macro.named_attr.html",
+        browser.navigate_to_macro_page(URL_NAMED)?,
         "nom_named_attr.png",
     )?;
+
+    let tab = browser.navigate_to_macro_page(URL_PANIC)?;
+    tab.find_element(OPTIONS)?.click()?;
+    tab.wait_for_element(OPT_FULLSCREEN)?.click()?;
+    std::thread::sleep(std::time::Duration::from_secs(1)); // Wait for the gfx
+    screenshot(tab, "std_panic_fs.png")?;
+
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{Browser, DIAGRAM_CONTAINER};
+    use super::{Browser, DIAGRAM_CONTAINER, OPTIONS};
     const MACRO_BLOCK: &str = "#main > div.docblock.type-decl > div > div > pre";
     const MODAL_CONTAINER: &str = "#main > div.docblock.type-decl > div > div > div.railroad_modal";
     const LEGEND: &str =
         "#main > div.docblock.type-decl > div > div > div.railroad_container > svg > g > g.legend";
-    const OPTIONS: &str =
-        "#main > div.docblock.type-decl > div > div > div.railroad_container > div > div > img";
     const OPT_LEGEND: &str = "#main > div.docblock.type-decl > div > div > div.railroad_container > div > div > div > ul > li:nth-child(4) > label";
 
     fn init_log() {
@@ -120,8 +131,7 @@ mod tests {
         init_log();
         let browser = Browser::new()?;
         let tab = browser.testable_tab()?;
-        let _ = tab.find_element(MODAL_CONTAINER)?;
-        Ok(())
+        tab.find_element(MODAL_CONTAINER).map(|_| ())
     }
 
     #[test]
