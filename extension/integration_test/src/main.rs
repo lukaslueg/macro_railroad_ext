@@ -34,6 +34,7 @@ impl Browser {
         let browser = headless_chrome::Browser::new(
             headless_chrome::LaunchOptionsBuilder::default()
                 .extensions(vec![ext.path().as_ref()])
+                .path(Some(headless_chrome::browser::default_executable().unwrap()))
                 .headless(false)
                 .build()
                 .unwrap(),
