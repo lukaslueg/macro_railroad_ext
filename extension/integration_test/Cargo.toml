@@ -5,8 +5,7 @@ authors = ["Lukas Lueg <lukas.lueg@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-headless_chrome = { git = "https://github.com/atroche/rust-headless-chrome" }
-#headless_chrome = { path = "../../../rust-headless-chrome" }
+headless_chrome = { version="0.1", default_features=false }
 tempdir = "0.3"
 zip = "0.5"
 failure = "0.1"
