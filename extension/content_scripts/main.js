@@ -20,6 +20,7 @@ Rust.macro_railroad_ext.then( function( railroad ) {
                                show_legend: true };
 
         var newNode = document.createElement("div");
+        newNode.style.width = "100%";
         var parentNode = macroNodes[idx].parentNode;
 
         newNode.appendChild(macroNodes[idx]);
@@ -56,7 +57,7 @@ Rust.macro_railroad_ext.then( function( railroad ) {
                 svgTemplate.innerHTML = parseResult["Ok"]["svg"];
                 var svgNode = svgTemplate.content.firstElementChild;
                 svgContainer.getElementsByTagName("svg")[0].replaceWith(svgNode.cloneNode(true));
-                svgContainer.style.width = parseResult["Ok"]["width"] + "px";
+                svgContainer.style.maxWidth = parseResult["Ok"]["width"] + "px";
                 modalDiagramNodeContent.getElementsByTagName("svg")[0].replaceWith(svgNode);
             }
         }

@@ -28,7 +28,7 @@ clean:
 .PHONY: test
 test: packed.zip
 	cd wasm_src && cargo web test --release
-	export MACRO_RAILROAD_PACKED="$(abspath $<)"; cargo test --manifest-path integration_test/Cargo.toml
+	export RUST_BACKTRACE=1 MACRO_RAILROAD_PACKED="$(abspath $<)"; cargo test --manifest-path integration_test/Cargo.toml
 
 .PHONY: screenshots
 screenshots: packed.zip

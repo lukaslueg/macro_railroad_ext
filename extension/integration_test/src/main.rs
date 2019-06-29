@@ -4,8 +4,8 @@ const OPTIONS: &str =
     "#main > div.docblock.type-decl > div > div > div.railroad_container > div > div > img";
 const OPT_FULLSCREEN: &str =
     "#main > div.docblock.type-decl > div > div > div.railroad_container > div > img";
-const URL_PANIC: &str = "https://doc.rust-lang.org/std/macro.panic.html";
 const URL_NAMED: &str = "https://docs.rs/nom/4.2.2/nom/macro.named_attr.html";
+const URL_PANIC: &str = "https://doc.rust-lang.org/std/macro.panic.html";
 
 struct Browser {
     _ext: tempdir::TempDir,
@@ -34,7 +34,9 @@ impl Browser {
         let browser = headless_chrome::Browser::new(
             headless_chrome::LaunchOptionsBuilder::default()
                 .extensions(vec![ext.path().as_ref()])
-                .path(Some(headless_chrome::browser::default_executable().unwrap()))
+                .path(Some(
+                    headless_chrome::browser::default_executable().unwrap(),
+                ))
                 .headless(false)
                 .build()
                 .unwrap(),
@@ -103,12 +105,14 @@ fn main() -> Result<(), failure::Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Browser, DIAGRAM_CONTAINER, OPTIONS};
-    const MACRO_BLOCK: &str = "#main > div.docblock.type-decl > div > div > pre";
-    const MODAL_CONTAINER: &str = "#main > div.docblock.type-decl > div > div > div.railroad_modal";
+    use super::*;
     const LEGEND: &str =
         "#main > div.docblock.type-decl > div > div > div.railroad_container > svg > g > g.legend";
+    const MAIN: &str = "#main";
+    const MODAL_CONTAINER: &str = "#main > div.docblock.type-decl > div > div > div.railroad_modal";
     const OPT_LEGEND: &str = "#main > div.docblock.type-decl > div > div > div.railroad_container > div > div > div > ul > li:nth-child(4) > label";
+    const URL_BITFLAGS: &str = "https://docs.rs/bitflags/1.1.0/bitflags/macro.bitflags.html";
+    const MACRO_BLOCK: &str = "#main > div.docblock.type-decl > div > div > pre";
 
     fn init_log() {
         let _ = env_logger::builder().is_test(true).try_init();
@@ -135,18 +139,28 @@ mod tests {
         tab.find_element(MODAL_CONTAINER).map(|_| ())
     }
 
-    #[test]
-    fn placement() -> Result<(), failure::Error> {
-        init_log();
-        let browser = Browser::new()?;
-        let tab = browser.testable_tab()?;
-        let inline_dia = tab.find_element(DIAGRAM_CONTAINER)?;
-        let inline_dia_box = inline_dia.get_box_model()?;
+    fn test_placement(browser: &Browser, url: &str) -> Result<(), failure::Error> {
+        let tab = browser.navigate_to_macro_page(url)?;
+        let main_box = tab.find_element(MAIN)?.get_box_model()?;
         let macro_block_box = tab.find_element(MACRO_BLOCK)?.get_box_model()?;
+        assert!(macro_block_box.content.within_bounds_of(&main_box.margin));
+
+        let inline_dia_box = tab.find_element(DIAGRAM_CONTAINER)?.get_box_model()?;
+        assert!(inline_dia_box.content.within_bounds_of(&main_box.margin));
         assert!(inline_dia_box.content.below(&macro_block_box.margin));
         assert!(inline_dia_box
             .content
             .within_horizontal_bounds_of(&macro_block_box.margin));
+        Ok(())
+    }
+
+    #[test]
+    fn placement() -> Result<(), failure::Error> {
+        init_log();
+        let browser = Browser::new()?;
+        test_placement(&browser, URL_PANIC)?;
+        test_placement(&browser, URL_BITFLAGS)?;
+        test_placement(&browser, URL_NAMED)?;
         Ok(())
     }
 
