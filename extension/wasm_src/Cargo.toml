@@ -3,6 +3,7 @@ name = "macro_railroad_ext"
 version = "0.1.0"
 authors = ["Lukas Lueg <lukas.lueg@gmail.com>"]
 build = "build.rs"
+edition = "2018"
 
 [dependencies]
 railroad = "0.1"
