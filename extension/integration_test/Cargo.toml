@@ -5,7 +5,7 @@ authors = ["Lukas Lueg <lukas.lueg@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-headless_chrome = { version="0.5", default_features=false }
+headless_chrome = { version="0.7", default_features=false }
 tempdir = "0.3"
 zip = { version="0.5", default_features=false, features = ["deflate"] }
 failure = { version="0.1", default_features=false }
