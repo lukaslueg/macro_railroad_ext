@@ -18,7 +18,7 @@ serde_derive = "1.0"
 crate-type = ["cdylib"]
 
 [build-dependencies]
-built = { version = "0.3", features=["serialized_time"], default_features=false }
+built = { version = "0.4", features=["chrono"], default_features=false }
 
 [profile.release]
 lto = true
