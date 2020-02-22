@@ -41,7 +41,7 @@ impl Browser {
                 .build()
                 .unwrap(),
         )?;
-        eprintln!("{:?}", browser.get_version()?);
+        log::info!("Browser version {:?}", browser.get_version()?);
         Ok(Self { _ext: ext, browser })
     }
 
@@ -49,11 +49,19 @@ impl Browser {
         &self,
         url: &str,
     ) -> Result<std::sync::Arc<headless_chrome::browser::tab::Tab>, failure::Error> {
-        const DECL_TOGGLE: &str = "#main > div.toggle-wrapper.collapsed > a > span.toggle-label";
         let tab = self.wait_for_initial_tab()?;
+        log::trace!("Navigating to `{}`", &url);
         tab.navigate_to(url)?;
-        tab.wait_for_element(DECL_TOGGLE)?.click()?;
+        log::trace!("Waiting for decl-element");
+        // Ignore if the selector is not there, might be uncollapsed already...
+        if let Ok(elem) =
+            tab.wait_for_element("#main > div.toggle-wrapper.collapsed > a > span.toggle-label")
+        {
+            elem.click()?;
+        }
+        log::trace!("Waiting for diagram");
         tab.wait_for_element(DIAGRAM_CONTAINER)?;
+        log::trace!("Successfully navigated");
         Ok(tab)
     }
 
@@ -74,6 +82,8 @@ impl std::ops::Deref for Browser {
 }
 
 fn main() -> Result<(), failure::Error> {
+    env_logger::init();
+
     let browser = Browser::new()?;
 
     let screenshot =
