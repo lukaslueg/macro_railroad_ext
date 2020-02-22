@@ -5,3 +5,6 @@ extension/wasm_src/target/
 extension/packed.zip
 extension/integration_test/Cargo.lock
 extension/integration_test/target
+extension/nom_named_attr.png
+extension/std_panic_fs.png
+extension/std_panic.png
