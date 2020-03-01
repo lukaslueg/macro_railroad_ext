@@ -3,13 +3,22 @@
 wasm_src/Cargo.lock:
 	cd wasm_src && cargo update
 
-wasm_src/target/deploy/macro_railroad_ext.js wasm_src/target/deploy/macro_railroad_ext.wasm: wasm_src/Cargo.lock wasm_src/Cargo.toml wasm_src/Web.toml wasm_src/build.rs wasm_src/src/lib.rs
-	cd wasm_src && cargo web deploy --release
+wasm_src/target/deploy/macro_railroad_ext.js wasm_src/target/deploy/macro_railroad_ext.wasm: wasm_src/Cargo.lock wasm_src/Cargo.toml wasm_src/Web.toml wasm_src/build.rs wasm_src/src/lib.rs wasm_src/src/util.rs
+	cd wasm_src && cargo web deploy --release --features webextension
 
 wasm:
 	mkdir $@
 
 wasm/macro_railroad_ext.wasm: wasm_src/target/deploy/macro_railroad_ext.wasm | wasm
+	cp $< $@
+
+assets/fullscreen.svg: wasm_src/static/fullscreen.svg
+	cp $< $@
+
+assets/options.svg: wasm_src/static/options.svg
+	cp $< $@
+
+assets/macro_railroad_ext.css: wasm_src/static/macro_railroad_ext.css
 	cp $< $@
 
 content_scripts/macro_railroad_ext.js: wasm_src/target/deploy/macro_railroad_ext.js

@@ -8,3 +8,6 @@ extension/integration_test/target
 extension/nom_named_attr.png
 extension/std_panic_fs.png
 extension/std_panic.png
+extension/assets/fullscreen.svg
+extension/assets/macro_railroad_ext.css
+extension/assets/options.svg

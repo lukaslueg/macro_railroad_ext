@@ -9,10 +9,8 @@ edition = "2018"
 railroad = "0.1"
 macro_railroad = "0.1"
 stdweb = "0.4"
-htmlescape = "0.3"
 syn = { version = "1.0", default_features=false }
-serde = "1.0"
-serde_derive = "1.0"
+rand = { version = "0.7", features=["stdweb"] }
 
 [lib]
 crate-type = ["cdylib"]
@@ -22,3 +20,6 @@ built = { version = "0.4", features=["chrono"], default_features=false }
 
 [profile.release]
 lto = true
+
+[features]
+webextension = []
