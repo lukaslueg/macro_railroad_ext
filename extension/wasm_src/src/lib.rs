@@ -85,6 +85,16 @@ fn inject_css(document: &web::Document) -> Result<()> {
     mrext_css.set_attribute("type", "text/css")?;
     mrext_css.set_attribute("rel", "stylesheet")?;
     mrext_css.set_attribute("href", &util::Asset::CSS.url()?)?;
+
+    // Since this CSS is loaded after the fact, the modal may flicker upon
+    // page-load. The modal-containers are therefor display:none by default,
+    // which is removed once the CSS takes over.
+    mrext_css.set_attribute("onload", r#"
+for (let n of document.getElementsByClassName("railroad_modal")) {
+    n.removeAttribute("style");
+}
+"#)?;
+
     head.append_child(&mrext_css);
 
     let rr_css = document.create_element("style")?;
@@ -109,6 +119,10 @@ fn create_modal(document: &web::Document) -> Result<(web::Element, Rc<web::Eleme
     let modal_container = Rc::new(document.create_element("div")?);
     modal_container.append_child(&modal_content);
     modal_container.set_attribute("class", "railroad_modal")?;
+
+    // See inject_css
+    modal_container.set_attribute("style", "display: none")?;
+
     let modal_container_c = Rc::clone(&modal_container);
     modal_container.add_event_listener(move |_: web::event::ClickEvent| {
         util::classlist_remove(modal_container_c.as_ref(), "railroad_active");
