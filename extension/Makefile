@@ -13,7 +13,11 @@ wasm:
 	mkdir $@
 
 wasm/macro_railroad_ext.wasm: wasm_src/target/deploy/macro_railroad_ext.wasm | wasm
+ifdef TRAVIS
 	cp $< $@
+else
+	wasm-opt -Oz -o $@ $<
+endif
 
 assets/fullscreen.svg: wasm_src/static/fullscreen.svg | assets
 	cp $< $@
