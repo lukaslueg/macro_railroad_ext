@@ -6,19 +6,22 @@ wasm_src/Cargo.lock:
 wasm_src/target/deploy/macro_railroad_ext.js wasm_src/target/deploy/macro_railroad_ext.wasm: wasm_src/Cargo.lock wasm_src/Cargo.toml wasm_src/Web.toml wasm_src/build.rs wasm_src/src/lib.rs wasm_src/src/util.rs
 	cd wasm_src && cargo web deploy --release --features webextension
 
+assets:
+	mkdir $@
+
 wasm:
 	mkdir $@
 
 wasm/macro_railroad_ext.wasm: wasm_src/target/deploy/macro_railroad_ext.wasm | wasm
 	cp $< $@
 
-assets/fullscreen.svg: wasm_src/static/fullscreen.svg
+assets/fullscreen.svg: wasm_src/static/fullscreen.svg | assets
 	cp $< $@
 
-assets/options.svg: wasm_src/static/options.svg
+assets/options.svg: wasm_src/static/options.svg | assets
 	cp $< $@
 
-assets/macro_railroad_ext.css: wasm_src/static/macro_railroad_ext.css
+assets/macro_railroad_ext.css: wasm_src/static/macro_railroad_ext.css | assets
 	cp $< $@
 
 content_scripts/macro_railroad_ext.js: wasm_src/target/deploy/macro_railroad_ext.js
@@ -29,8 +32,9 @@ packed.zip: manifest.json assets/fullscreen.svg assets/macro_railroad_ext.css as
 
 .PHONY: clean
 clean:
-	-rm packed.zip wasm_src/Cargo.lock integration_test/Cargo.lock wasm/macro_railroad_ext.wasm content_scripts/macro_railroad_ext.js
+	-rm packed.zip wasm_src/Cargo.lock integration_test/Cargo.lock wasm/macro_railroad_ext.wasm content_scripts/macro_railroad_ext.js assets/fullscreen.svg assets/options.svg assets/macro_railroad_ext.css
 	-rmdir wasm
+	-rmdir assets
 	cd wasm_src && cargo clean
 	cd integration_test && cargo clean
 
