@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "macro_railroad",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Generate syntax diagrams for `macro_rules!()` on docs.rs and doc.rust-lang.org",
   "author": "Lukas Lueg <lukas.lueg@gmail.com>",
   "icons": {
