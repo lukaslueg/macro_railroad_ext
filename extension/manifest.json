@@ -10,7 +10,8 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["*://*.docs.rs/*",
+                  "*://doc.rust-lang.org/*"],
       "js": ["content_scripts/macro_railroad_ext.js", "content_scripts/main.js"]
     }
   ],
