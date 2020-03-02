@@ -11,7 +11,8 @@
   "content_scripts": [
     {
       "matches": ["*://*.docs.rs/*",
-                  "*://doc.rust-lang.org/*"],
+                  "*://doc.rust-lang.org/*",
+                  "file:///*"],
       "js": ["content_scripts/macro_railroad_ext.js", "content_scripts/main.js"]
     }
   ],

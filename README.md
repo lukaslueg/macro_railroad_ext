@@ -4,8 +4,7 @@ A `WebExtension` compatible with Chrome, Firefox and Edge to display syntax-diag
 
 **A pre-built version for Chrome is published [here](https://chrome.google.com/webstore/detail/macrorailroad/jeinhnlccpembeoccdhdpnolnmkfcblp), for Firefox [here](https://addons.mozilla.org/en-US/firefox/addon/macro_railroad/), for Edge [here](https://microsoftedge.microsoft.com/addons/detail/falpndjdhnafmnjajiooahgjlimgjjjk)**
 
-**Note:** The only reason this extension is requesting blank access is so that it works with
-documentation on `file://` and company-internal networks. No data is *ever* transferred.
+**Note:** The only reason this extension requests access to `file:///*` is local documentation. No data is *ever* transferred.
 
 ![Screenshot](./var/screenshot1.png)
 
