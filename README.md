@@ -6,7 +6,7 @@ A `WebExtension` compatible with Chrome, Firefox and Edge to display syntax-diag
 
 **Note:** The only reason this extension requests access to `file:///*` is local documentation; no data is *ever* transferred. You may need to enable "Allow access to file URLs" in Chromium-based browsers to use the extension with local documentation. 
 
-![Screenshot](./var/screenshot1.png)
+![Screenshot](./var/screenshot4.png)
 
 The extension uses [macro_railroad](https://github.com/lukaslueg/macro_railroad) to generate diagrams. The diagrams are shown beneath each macro-block. Use the icons in the lower right corner to control options and expand the diagram to fullscreen.
 
