@@ -5,9 +5,6 @@ authors = ["Lukas Lueg <lukas.lueg@gmail.com>"]
 build = "build.rs"
 edition = "2021"
 
-[features]
-default = ["console_error_panic_hook"]
-
 [lib]
 crate-type = ["cdylib", "rlib"]
 

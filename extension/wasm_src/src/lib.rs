@@ -20,6 +20,9 @@ mod built_info {
 
 #[wasm_bindgen(start)]
 pub fn start() {
+    #[cfg(feature = "console_error_panic_hook")]
+    set_panic_hook();
+
     log(&format!(
         "macro_railroad_ext built {} on {} using {}",
         built_info::BUILT_TIME_UTC,
@@ -116,13 +119,13 @@ pub fn to_diagram(src: &str, options: &DiagramOptions) -> Result<Diagram, JsValu
     })
 }
 
+// When the `console_error_panic_hook` feature is enabled, we can call the
+// `set_panic_hook` function at least once during initialization, and then
+// we will get better error messages if our code ever panics.
+//
+// For more details see
+// https://github.com/rustwasm/console_error_panic_hook#readme
+#[cfg(feature = "console_error_panic_hook")]
 pub fn set_panic_hook() {
-    // When the `console_error_panic_hook` feature is enabled, we can call the
-    // `set_panic_hook` function at least once during initialization, and then
-    // we will get better error messages if our code ever panics.
-    //
-    // For more details see
-    // https://github.com/rustwasm/console_error_panic_hook#readme
-    #[cfg(feature = "console_error_panic_hook")]
     console_error_panic_hook::set_once();
 }
