@@ -4,7 +4,7 @@ wasm_src/Cargo.lock:
 	cd wasm_src && cargo update
 
 wasm_src/pkg/macro_railroad_ext.wasm: wasm_src/Cargo.lock wasm_src/Cargo.toml wasm_src/build.rs wasm_src/src/lib.rs
-	cd wasm_src && wasm-pack build -t no-modules && mv pkg/macro_railroad_ext_bg.wasm pkg/macro_railroad_ext.wasm
+	cd wasm_src && wasm-pack build -t no-modules && cp pkg/macro_railroad_ext_bg.wasm pkg/macro_railroad_ext.wasm
 
 wasm_src/pkg/macro_railroad_ext.js: wasm_src/pkg/macro_railroad_ext.wasm
 

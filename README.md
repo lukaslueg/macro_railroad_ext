@@ -14,8 +14,7 @@ To modify and build the extension locally:
 
 * Install the `wasm-pack` binary from `crates.io`.
 * The package in `wasm_src` can be executed via `wasm-pack build -t no-modules` to build destination wasm package.
-* The javascript-shim built by `wasm-pack` currently needs a little patching which the `Makefile` takes care of.
-  * `make test` executes the integration tests; Chrome is required.
-  * `make screenshots` takes a couple of screenshots on common pages for visual inspection; Chrome is required.
-  * `make packed.zip` builds the extension's compressed archive, which can be loaded into a browser as a temporary extension.
+* `make test` executes the integration tests; Chrome is required.
+* `make screenshots` takes a couple of screenshots on common pages for visual inspection; Chrome is required.
+* `make packed.zip` builds the extension's compressed archive, which can be loaded into a browser as a temporary extension.
 * Go to "about:debugging" (Firefox) or "chrome://extensions" (Chrome) and use "Load temporary Add-on"/"Load local extension" with `manifest.json`/`packed.zip` to load the extension. 
