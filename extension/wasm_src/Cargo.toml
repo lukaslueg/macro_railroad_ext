@@ -23,9 +23,6 @@ console_error_panic_hook = "0.1"
 [build-dependencies]
 built = { version = "0.5", features = ["chrono"], default_features = false }
 
-[dev-dependencies]
-wasm-bindgen-test = "0.3"
-
 [profile.release]
 # Tell `rustc` to optimize for small code size.
 opt-level = "s"
