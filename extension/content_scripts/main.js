@@ -16,16 +16,17 @@ async function load() {
         // The div that the `pre.macro` get's moved into, together with the new diagram nodes
         let newNode = document.createElement('div');
         newNode.setAttribute('style', 'width: 100%;');
+        // The container which holds the inline-svg on the page
+        let svgContainer = document.createElement('div');
+        svgContainer.setAttribute('class', 'railroad_container');
+        svgContainer.appendChild(document.createElement('svg'));
+        // Append svg container ahead macro element to prevent noisy overflow.
+        newNode.appendChild(svgContainer);
         newNode.appendChild(macro);
 
         let modalContainer = createModal();
         newNode.appendChild(modalContainer);
 
-        // The container which holds the inline-svg on the page
-        let svgContainer = document.createElement('div');
-        svgContainer.setAttribute('class', 'railroad_container');
-        svgContainer.appendChild(document.createElement('svg'));
-        newNode.appendChild(svgContainer);
 
         const diagramOptions = new wasm_bindgen.DiagramOptions();
         let iconsContainer = createIcons(macroSrc, diagramOptions);
