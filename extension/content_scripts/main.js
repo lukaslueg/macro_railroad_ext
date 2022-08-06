@@ -1,9 +1,8 @@
 (async () => {
-    await wasm_bindgen(chrome.runtime.getURL('wasm/macro_railroad_ext.wasm'));
-
-    function load() {
+    async function load() {
         if (!isRustDoc()) return;
 
+        await wasm_bindgen(chrome.runtime.getURL('wasm/macro_railroad_ext.wasm'));
         injectCss();
 
         for (let macro of document.querySelectorAll('pre.macro')) {
@@ -158,7 +157,7 @@
         return iconsContainer;
     }
 
-    /// The update function, called when options are set and to create the initial diagram
+    // The update function, called when options are set and to create the initial diagram
     function updateDiagram(macroSrc, diagramOptions) {
         let diagram = wasm_bindgen.toDiagram(macroSrc, diagramOptions);
         let svgContainer = document.querySelector('div.railroad_container');
@@ -168,9 +167,10 @@
         modalContent.replaceChild(htmlToElement(diagram.svg), modalContent.firstChild);
     }
 
-    load();
+    await load();
 })();
 
+// Convert plain HTML text to element
 function htmlToElement(html) {
     let div = document.createElement('div');
     div.innerHTML = html;
