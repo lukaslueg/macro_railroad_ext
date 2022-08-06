@@ -12,10 +12,9 @@ The extension uses [macro_railroad](https://github.com/lukaslueg/macro_railroad)
 
 To modify and build the extension locally:
 
-* Install the `cargo-web` binary from `crates.io`.
-* The package in `wasm_src` can be executed via `cargo web start`; it serves a testing-page for a quick edit-debug-cycle.
-* The javascript-shim built by `cargo-web` currently needs a little patching which the `Makefile` takes care of.
-  * Building requires `wasm-opt` (from `binaryen`). If `wasm-opt` is not available, set `$TRAVIS` to some value.
+* Install the `wasm-pack` binary from `crates.io`.
+* The package in `wasm_src` can be executed via `wasm-pack build -t no-modules` to build destination wasm package.
+* The javascript-shim built by `wasm-pack` currently needs a little patching which the `Makefile` takes care of.
   * `make test` executes the integration tests; Chrome is required.
   * `make screenshots` takes a couple of screenshots on common pages for visual inspection; Chrome is required.
   * `make packed.zip` builds the extension's compressed archive, which can be loaded into a browser as a temporary extension.
