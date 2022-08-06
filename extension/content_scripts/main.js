@@ -1,5 +1,5 @@
 (async () => {
-    await wasm_bindgen(chrome.runtime.getURL('pkg/macro_railroad_ext_bg.wasm'));
+    await wasm_bindgen(chrome.runtime.getURL('wasm/macro_railroad_ext.wasm'));
 
     function load() {
         if (!isRustDoc()) return;
