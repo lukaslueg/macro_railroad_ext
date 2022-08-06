@@ -79,12 +79,18 @@ impl DiagramOptions {
     }
 }
 
+impl Default for DiagramOptions {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Parse the given macro_rules!()-source, returns an SVG and it's preferred width
 #[wasm_bindgen(js_name = toDiagram)]
 pub fn to_diagram(src: &str, options: &DiagramOptions) -> Result<Diagram, JsValue> {
     log(&format!("{:?}", options));
-    let macro_rules =
-        macro_railroad::parser::parse(&src).map_err(|_| format!("Macro railroad parse failed."))?;
+    let macro_rules = macro_railroad::parser::parse(src)
+        .map_err(|_| "Macro railroad parse failed.".to_string())?;
     let mut tree = macro_railroad::lowering::MacroRules::from(macro_rules);
 
     if options.hide_internal {
