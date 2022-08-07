@@ -8,22 +8,10 @@ wasm_src/pkg/macro_railroad_ext.wasm: wasm_src/Cargo.lock wasm_src/Cargo.toml wa
 
 wasm_src/pkg/macro_railroad_ext.js: wasm_src/pkg/macro_railroad_ext.wasm
 
-assets:
-	mkdir $@
-
 wasm:
 	mkdir $@
 
 wasm/macro_railroad_ext.wasm: wasm_src/pkg/macro_railroad_ext.wasm | wasm
-	cp $< $@
-
-assets/fullscreen.svg: wasm_src/static/fullscreen.svg | assets
-	cp $< $@
-
-assets/options.svg: wasm_src/static/options.svg | assets
-	cp $< $@
-
-assets/macro_railroad_ext.css: wasm_src/static/macro_railroad_ext.css | assets
 	cp $< $@
 
 content_scripts/macro_railroad_ext.js: wasm_src/pkg/macro_railroad_ext.js
@@ -37,7 +25,6 @@ clean:
 	-rm packed.zip wasm_src/Cargo.lock integration_test/Cargo.lock wasm/macro_railroad_ext.wasm content_scripts/macro_railroad_ext.js assets/fullscreen.svg assets/options.svg assets/macro_railroad_ext.css
 	-rm -r wasm_src/pkg
 	-rmdir wasm
-	-rmdir assets
 	cd wasm_src && cargo clean
 	cd integration_test && cargo clean
 
