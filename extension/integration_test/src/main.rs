@@ -1,9 +1,9 @@
 const DIAGRAM_CONTAINER: &str =
-    "#main > div.docblock.type-decl > div > div > div.railroad_container";
+    "#main-content > div.docblock.item-decl > div > div > div.railroad_container, #main > div.docblock.type-decl > div > div > div.railroad_container";
 const OPTIONS: &str =
-    "#main > div.docblock.type-decl > div > div > div.railroad_container > div > div > img";
+    "#main-content > div.docblock.item-decl > div > div > div.railroad_container > div > div > img, #main > div.docblock.type-decl > div > div > div.railroad_container";
 const OPT_FULLSCREEN: &str =
-    "#main > div.docblock.type-decl > div > div > div.railroad_container > div > img";
+    "#main-content > div.docblock.item-decl > div > div > div.railroad_container > div > img, #main > div.docblock.type-decl > div > div > div.railroad_container";
 const URL_NAMED: &str = "https://docs.rs/nom/4.2.2/nom/macro.named_attr.html";
 const URL_PANIC: &str = "https://doc.rust-lang.org/std/macro.panic.html";
 
@@ -94,8 +94,18 @@ fn main() -> Result<(), failure::Error> {
                 true,
             )?;
             std::fs::write(fname, &png_data)?;
+            log::info!("Successfully screenshotted `{}`", &fname);
             Ok(())
         };
+
+    let screenshot_fs = |tab: std::sync::Arc<headless_chrome::Tab>, fname: &str| -> Result<(), failure::Error> {
+        log::trace!("Waiting for Options...");
+        tab.find_element(OPTIONS)?.click()?;
+        log::trace!("Waiting for Fullscreen...");
+        tab.wait_for_element(OPT_FULLSCREEN)?.click()?;
+        std::thread::sleep(std::time::Duration::from_secs(2)); // Wait for the gfx
+        screenshot(tab, fname)
+    };
 
     screenshot(browser.navigate_to_macro_page(URL_PANIC)?, "std_panic.png")?;
 
@@ -104,11 +114,12 @@ fn main() -> Result<(), failure::Error> {
         "nom_named_attr.png",
     )?;
 
+    screenshot_fs(browser.navigate_to_macro_page(URL_PANIC)?, "std_panic_fs.png")?;
+    screenshot_fs(browser.navigate_to_macro_page(URL_NAMED)?, "nom_named_attr_fs.png")?;
+
     let tab = browser.navigate_to_macro_page(URL_PANIC)?;
     tab.find_element(OPTIONS)?.click()?;
-    tab.wait_for_element(OPT_FULLSCREEN)?.click()?;
-    std::thread::sleep(std::time::Duration::from_secs(1)); // Wait for the gfx
-    screenshot(tab, "std_panic_fs.png")?;
+    screenshot(tab, "std_panic_options.png")?;
 
     Ok(())
 }
@@ -117,12 +128,12 @@ fn main() -> Result<(), failure::Error> {
 mod tests {
     use super::*;
     const LEGEND: &str =
-        "#main > div.docblock.type-decl > div > div > div.railroad_container > svg > g > g.legend";
-    const MAIN: &str = "#main";
-    const MODAL_CONTAINER: &str = "#main > div.docblock.type-decl > div > div > div.railroad_modal";
-    const OPT_LEGEND: &str = "#main > div.docblock.type-decl > div > div > div.railroad_container > div > div > div > ul > li:nth-child(4) > label";
+        "#main-content > div.docblock.item-decl > div > div > div.railroad_container > svg > g > g.legend, #main > div.docblock.type-decl > div > div > div.railroad_container > svg > g > g.legend";
+    const MAIN: &str = "#main-content, #main";
+    const MODAL_CONTAINER: &str = "#main-content > div.docblock.item-decl > div > div > div.railroad_modal, #main > div.docblock.type-decl > div > div > div.railroad_modal";
+    const OPT_LEGEND: &str = "#main-content > div.docblock.item-decl > div > div > div.railroad_container > div > div > div > ul > li:nth-child(4) > label, #main > div.docblock.type-decl > div > div > div.railroad_container > div > div > div > ul > li:nth-child(4) > label";
     const URL_BITFLAGS: &str = "https://docs.rs/bitflags/1.1.0/bitflags/macro.bitflags.html";
-    const MACRO_BLOCK: &str = "#main > div.docblock.type-decl > div > div > pre";
+    const MACRO_BLOCK: &str = "#main-content > div.docblock.item-decl > div > div > pre, #main > div.docblock.type-decl > div > div > pre";
 
     fn init_log() {
         let _ = env_logger::builder().is_test(true).try_init();
@@ -151,13 +162,16 @@ mod tests {
 
     fn test_placement(browser: &Browser, url: &str) -> Result<(), failure::Error> {
         let tab = browser.navigate_to_macro_page(url)?;
+        log::trace!("Looking for main-box");
         let main_box = tab.find_element(MAIN)?.get_box_model()?;
+        log::trace!("Looking for macro-box");
         let macro_block_box = tab.find_element(MACRO_BLOCK)?.get_box_model()?;
         assert!(macro_block_box.content.within_bounds_of(&main_box.margin));
 
+        log::trace!("Looking for diagram-box");
         let inline_dia_box = tab.find_element(DIAGRAM_CONTAINER)?.get_box_model()?;
         assert!(inline_dia_box.content.within_bounds_of(&main_box.margin));
-        assert!(inline_dia_box.content.below(&macro_block_box.margin));
+        assert!(inline_dia_box.content.above(&macro_block_box.margin));
         assert!(inline_dia_box
             .content
             .within_horizontal_bounds_of(&macro_block_box.margin));
