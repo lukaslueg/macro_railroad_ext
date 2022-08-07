@@ -21,7 +21,7 @@ impl Browser {
         let mut zip_archive = zip::ZipArchive::new(packed_f)?;
         for i in 0..zip_archive.len() {
             let mut f = zip_archive.by_index(i)?;
-            let fname = extract_path.path().to_path_buf().join(f.sanitized_name());
+            let fname = extract_path.path().to_path_buf().join(f.enclosed_name().unwrap());
             std::fs::create_dir_all(&fname.parent().unwrap())?;
             let mut e = std::fs::File::create(fname)?;
             std::io::copy(&mut f, &mut e)?;
