@@ -88,7 +88,7 @@ impl Default for DiagramOptions {
 #[wasm_bindgen(js_name = toDiagram)]
 pub fn to_diagram(src: &str, options: &DiagramOptions) -> Result<Diagram, JsValue> {
     let macro_rules = macro_railroad::parser::parse(src)
-        .map_err(|_| format!("macro_railroad parse failed: {}", e))?;
+        .map_err(|e| format!("macro_railroad parse failed: {}", e))?;
     let mut tree = macro_railroad::lowering::MacroRules::from(macro_rules);
 
     if options.hide_internal {
