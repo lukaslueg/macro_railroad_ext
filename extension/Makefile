@@ -35,4 +35,8 @@ test: packed.zip
 
 .PHONY: screenshots
 screenshots: packed.zip
-	export MACRO_RAILROAD_PACKED="$(abspath $<)"; cargo run --manifest-path integration_test/Cargo.toml
+	export MACRO_RAILROAD_PACKED="$(abspath $<)"; cargo run --manifest-path integration_test/Cargo.toml -- screenshots
+
+.PHONY: playground
+playground: packed.zip
+	export MACRO_RAILROAD_PACKED="$(abspath $<)"; cargo run --manifest-path integration_test/Cargo.toml -- playground

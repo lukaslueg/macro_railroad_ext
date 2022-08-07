@@ -7,29 +7,35 @@ const OPT_FULLSCREEN: &str =
 const URL_NAMED: &str = "https://docs.rs/nom/4.2.2/nom/macro.named_attr.html";
 const URL_PANIC: &str = "https://doc.rust-lang.org/std/macro.panic.html";
 
+use failure::Fallible;
+use std::{env, fs, io, ops, sync::Arc, thread, time};
+
 struct Browser {
     _ext: tempdir::TempDir,
     browser: headless_chrome::browser::Browser,
 }
 
 impl Browser {
-    fn extract_extension() -> Result<tempdir::TempDir, failure::Error> {
+    fn extract_extension() -> Fallible<tempdir::TempDir> {
         let packed_path =
-            std::env::var_os("MACRO_RAILROAD_PACKED").expect("Archive path not given by env");
-        let packed_f = std::fs::File::open(packed_path)?;
+            env::var_os("MACRO_RAILROAD_PACKED").expect("Archive path not given by env");
+        let packed_f = fs::File::open(packed_path)?;
         let extract_path = tempdir::TempDir::new("mrtest")?;
         let mut zip_archive = zip::ZipArchive::new(packed_f)?;
         for i in 0..zip_archive.len() {
             let mut f = zip_archive.by_index(i)?;
-            let fname = extract_path.path().to_path_buf().join(f.enclosed_name().unwrap());
-            std::fs::create_dir_all(&fname.parent().unwrap())?;
+            let fname = extract_path
+                .path()
+                .to_path_buf()
+                .join(f.enclosed_name().unwrap());
+            fs::create_dir_all(&fname.parent().unwrap())?;
             let mut e = std::fs::File::create(fname)?;
-            std::io::copy(&mut f, &mut e)?;
+            io::copy(&mut f, &mut e)?;
         }
         Ok(extract_path)
     }
 
-    fn new() -> Result<Self, failure::Error> {
+    fn new() -> Fallible<Self> {
         let ext = Self::extract_extension()?;
         let browser = headless_chrome::Browser::new(
             headless_chrome::LaunchOptionsBuilder::default()
@@ -48,7 +54,7 @@ impl Browser {
     fn navigate_to_macro_page(
         &self,
         url: &str,
-    ) -> Result<std::sync::Arc<headless_chrome::browser::tab::Tab>, failure::Error> {
+    ) -> Fallible<Arc<headless_chrome::browser::tab::Tab>> {
         let tab = self.wait_for_initial_tab()?;
         log::trace!("Navigating to `{}`", &url);
         tab.navigate_to(url)?;
@@ -66,14 +72,12 @@ impl Browser {
     }
 
     #[cfg(test)]
-    fn testable_tab(
-        &self,
-    ) -> Result<std::sync::Arc<headless_chrome::browser::tab::Tab>, failure::Error> {
+    fn testable_tab(&self) -> Fallible<Arc<headless_chrome::browser::tab::Tab>> {
         self.navigate_to_macro_page(URL_PANIC)
     }
 }
 
-impl std::ops::Deref for Browser {
+impl ops::Deref for Browser {
     type Target = headless_chrome::browser::Browser;
 
     fn deref(&self) -> &Self::Target {
@@ -81,32 +85,48 @@ impl std::ops::Deref for Browser {
     }
 }
 
-fn main() -> Result<(), failure::Error> {
+fn main() -> Fallible<()> {
     env_logger::init();
 
+    match env::args().last().as_deref().expect("no arguments") {
+        "screenshots" => screenshots(),
+        "playground" => playground(),
+        p => panic!("unknown argument `{}`", p),
+    }
+}
+
+fn playground() -> Fallible<()> {
+    let browser = Browser::new()?;
+    browser.navigate_to_macro_page(URL_PANIC)?;
+
+    loop {
+        log::info!("Waiting...");
+        thread::sleep(time::Duration::from_secs(5));
+    }
+}
+
+fn screenshots() -> Fallible<()> {
     let browser = Browser::new()?;
 
-    let screenshot =
-        |tab: std::sync::Arc<headless_chrome::Tab>, fname: &str| -> Result<(), failure::Error> {
-            let png_data = tab.capture_screenshot(
-                headless_chrome::protocol::page::ScreenshotFormat::PNG,
-                None,
-                true,
-            )?;
-            std::fs::write(fname, &png_data)?;
-            log::info!("Successfully screenshotted `{}`", &fname);
-            Ok(())
-        };
+    let screenshot = |tab: Arc<headless_chrome::Tab>, fname: &str| -> Fallible<()> {
+        let png_data = tab.capture_screenshot(
+            headless_chrome::protocol::page::ScreenshotFormat::PNG,
+            None,
+            true,
+        )?;
+        fs::write(fname, &png_data)?;
+        log::info!("Successfully screenshotted `{}`", &fname);
+        Ok(())
+    };
 
-    let screenshot_fs =
-        |tab: std::sync::Arc<headless_chrome::Tab>, fname: &str| -> Result<(), failure::Error> {
-            log::trace!("Waiting for Options...");
-            tab.find_element(OPTIONS)?.click()?;
-            log::trace!("Waiting for Fullscreen...");
-            tab.wait_for_element(OPT_FULLSCREEN)?.click()?;
-            std::thread::sleep(std::time::Duration::from_secs(2)); // Wait for the gfx
-            screenshot(tab, fname)
-        };
+    let screenshot_fs = |tab: Arc<headless_chrome::Tab>, fname: &str| -> Fallible<()> {
+        log::trace!("Waiting for Options...");
+        tab.find_element(OPTIONS)?.click()?;
+        log::trace!("Waiting for Fullscreen...");
+        tab.wait_for_element(OPT_FULLSCREEN)?.click()?;
+        thread::sleep(time::Duration::from_secs(2)); // Wait for the gfx
+        screenshot(tab, fname)
+    };
 
     screenshot(browser.navigate_to_macro_page(URL_PANIC)?, "std_panic.png")?;
 
@@ -147,7 +167,7 @@ mod tests {
     }
 
     #[test]
-    fn loads() -> Result<(), failure::Error> {
+    fn loads() -> Fallible<()> {
         init_log();
         let browser = Browser::new()?;
         let tab = browser.wait_for_initial_tab()?;
@@ -160,14 +180,14 @@ mod tests {
     }
 
     #[test]
-    fn executes() -> Result<(), failure::Error> {
+    fn executes() -> Fallible<()> {
         init_log();
         let browser = Browser::new()?;
         let tab = browser.testable_tab()?;
         tab.find_element(MODAL_CONTAINER).map(|_| ())
     }
 
-    fn test_placement(browser: &Browser, url: &str) -> Result<(), failure::Error> {
+    fn test_placement(browser: &Browser, url: &str) -> Fallible<()> {
         let tab = browser.navigate_to_macro_page(url)?;
         log::trace!("Looking for main-box");
         let main_box = tab.find_element(MAIN)?.get_box_model()?;
@@ -186,7 +206,7 @@ mod tests {
     }
 
     #[test]
-    fn placement() -> Result<(), failure::Error> {
+    fn placement() -> Fallible<()> {
         init_log();
         let browser = Browser::new()?;
         test_placement(&browser, URL_PANIC)?;
@@ -196,7 +216,7 @@ mod tests {
     }
 
     #[test]
-    fn set_options() -> Result<(), failure::Error> {
+    fn set_options() -> Fallible<()> {
         init_log();
         let browser = Browser::new()?;
         let tab = browser.testable_tab()?;
