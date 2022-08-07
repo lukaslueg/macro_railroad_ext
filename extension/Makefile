@@ -22,7 +22,7 @@ packed.zip: manifest.json assets/fullscreen.svg assets/macro_railroad_ext.css as
 
 .PHONY: clean
 clean:
-	-rm packed.zip wasm_src/Cargo.lock integration_test/Cargo.lock wasm/macro_railroad_ext.wasm content_scripts/macro_railroad_ext.js assets/fullscreen.svg assets/options.svg assets/macro_railroad_ext.css
+	-rm packed.zip wasm_src/Cargo.lock integration_test/Cargo.lock wasm/macro_railroad_ext.wasm content_scripts/macro_railroad_ext.js 
 	-rm -r wasm_src/pkg
 	-rmdir wasm
 	cd wasm_src && cargo clean
