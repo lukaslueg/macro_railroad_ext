@@ -14,7 +14,6 @@ mod built_info {
 
 #[wasm_bindgen(start)]
 pub fn start() {
-    #[cfg(feature = "console_error_panic_hook")]
     set_panic_hook();
 
     log(&format!(
