@@ -14,7 +14,11 @@ mod built_info {
 
 #[wasm_bindgen(start)]
 pub fn start() {
-    set_panic_hook();
+    // Set panic hook to get better error messages if our code ever panics.
+    //
+    // For more details see
+    // https://github.com/rustwasm/console_error_panic_hook#readme
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 
     log(&format!(
         "macro_railroad_ext built {} on {} using {}",
@@ -111,13 +115,4 @@ pub fn to_diagram(src: &str, options: &DiagramOptions) -> Result<Diagram, JsValu
         width: dia.width(),
         svg,
     })
-}
-
-// Call the `set_panic_hook` function at least once during initialization,
-// and then we will get better error messages if our code ever panics.
-//
-// For more details see
-// https://github.com/rustwasm/console_error_panic_hook#readme
-pub fn set_panic_hook() {
-    console_error_panic_hook::set_once();
 }
