@@ -1,29 +1,33 @@
 {
-  "manifest_version": 2,
-  "name": "macro_railroad",
-  "version": "0.0.6",
-  "description": "Generate syntax diagrams for `macro_rules!()` on docs.rs and doc.rust-lang.org",
-  "author": "Lukas Lueg <lukas.lueg@gmail.com>",
-  "icons": {
-      "48": "icons/icon48.png",
-      "96": "icons/icon96.png"
-  },
-  "content_scripts": [
-    {
-      "matches": ["*://*.docs.rs/*",
-                  "*://doc.rust-lang.org/*",
-                  "file:///*"],
-      "js": ["content_scripts/macro_railroad_ext.js", "content_scripts/main.js"]
-    }
-  ],
-  "options_ui": {
-      "page": "options/options.html"
-  },
-  "web_accessible_resources": [
-    "wasm/macro_railroad_ext.wasm",
-    "assets/fullscreen.svg",
-    "assets/options.svg",
-    "assets/macro_railroad_ext.css"
-  ]
-
+    "manifest_version": 2,
+    "name": "macro_railroad",
+    "version": "0.0.6",
+    "description": "Generate syntax diagrams for `macro_rules!()` on docs.rs and doc.rust-lang.org",
+    "author": "Lukas Lueg <lukas.lueg@gmail.com>",
+    "icons": {
+        "48": "icons/icon48.png",
+        "96": "icons/icon96.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.docs.rs/*",
+                "*://doc.rust-lang.org/*",
+                "file:///*"
+            ],
+            "js": [
+                "content_scripts/macro_railroad_ext.js",
+                "content_scripts/main.js"
+            ]
+        }
+    ],
+    "options_ui": {
+        "page": "options/options.html"
+    },
+    "web_accessible_resources": [
+        "wasm/macro_railroad_ext.wasm",
+        "assets/fullscreen.svg",
+        "assets/options.svg",
+        "assets/macro_railroad_ext.css"
+    ]
 }
