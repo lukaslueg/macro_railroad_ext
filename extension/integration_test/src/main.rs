@@ -98,14 +98,15 @@ fn main() -> Result<(), failure::Error> {
             Ok(())
         };
 
-    let screenshot_fs = |tab: std::sync::Arc<headless_chrome::Tab>, fname: &str| -> Result<(), failure::Error> {
-        log::trace!("Waiting for Options...");
-        tab.find_element(OPTIONS)?.click()?;
-        log::trace!("Waiting for Fullscreen...");
-        tab.wait_for_element(OPT_FULLSCREEN)?.click()?;
-        std::thread::sleep(std::time::Duration::from_secs(2)); // Wait for the gfx
-        screenshot(tab, fname)
-    };
+    let screenshot_fs =
+        |tab: std::sync::Arc<headless_chrome::Tab>, fname: &str| -> Result<(), failure::Error> {
+            log::trace!("Waiting for Options...");
+            tab.find_element(OPTIONS)?.click()?;
+            log::trace!("Waiting for Fullscreen...");
+            tab.wait_for_element(OPT_FULLSCREEN)?.click()?;
+            std::thread::sleep(std::time::Duration::from_secs(2)); // Wait for the gfx
+            screenshot(tab, fname)
+        };
 
     screenshot(browser.navigate_to_macro_page(URL_PANIC)?, "std_panic.png")?;
 
@@ -114,8 +115,14 @@ fn main() -> Result<(), failure::Error> {
         "nom_named_attr.png",
     )?;
 
-    screenshot_fs(browser.navigate_to_macro_page(URL_PANIC)?, "std_panic_fs.png")?;
-    screenshot_fs(browser.navigate_to_macro_page(URL_NAMED)?, "nom_named_attr_fs.png")?;
+    screenshot_fs(
+        browser.navigate_to_macro_page(URL_PANIC)?,
+        "std_panic_fs.png",
+    )?;
+    screenshot_fs(
+        browser.navigate_to_macro_page(URL_NAMED)?,
+        "nom_named_attr_fs.png",
+    )?;
 
     let tab = browser.navigate_to_macro_page(URL_PANIC)?;
     tab.find_element(OPTIONS)?.click()?;
