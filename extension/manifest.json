@@ -18,6 +18,9 @@
             "js": [
                 "content_scripts/macro_railroad_ext.js",
                 "content_scripts/main.js"
+            ],
+            "css": [
+                "assets/macro_railroad_ext.css"
             ]
         }
     ],
@@ -27,7 +30,6 @@
     "web_accessible_resources": [
         "wasm/macro_railroad_ext.wasm",
         "assets/fullscreen.svg",
-        "assets/options.svg",
-        "assets/macro_railroad_ext.css"
+        "assets/options.svg"
     ]
 }
