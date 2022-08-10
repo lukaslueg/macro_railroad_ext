@@ -8,7 +8,7 @@ async function load() {
     let macros = document.querySelectorAll('pre.macro');
     if (!macros || macros.length === 0) return;
 
-    await wasm_bindgen(chrome.runtime.getURL('wasm/macro-railroad.wasm'));
+    await wasm_bindgen(chrome.runtime.getURL('wasm/macro_railroad_ext.wasm'));
     injectCss();
 
     for (let macro of macros) {
