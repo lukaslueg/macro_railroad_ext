@@ -6,6 +6,7 @@ const OPT_FULLSCREEN: &str =
     "#main-content > div.docblock.item-decl > div > div > div.railroad_container > div > img, #main > div.docblock.type-decl > div > div > div.railroad_container";
 const URL_NAMED: &str = "https://docs.rs/nom/4.2.2/nom/macro.named_attr.html";
 const URL_PANIC: &str = "https://doc.rust-lang.org/std/macro.panic.html";
+const URL_INFO: &str = "https://docs.rs/tracing/0.1.36/tracing/macro.info.html";
 
 use failure::Fallible;
 use std::{env, fs, io, ops, sync::Arc, thread, time};
@@ -119,12 +120,19 @@ fn screenshots() -> Fallible<()> {
         Ok(())
     };
 
-    let screenshot_fs = |tab: Arc<headless_chrome::Tab>, fname: &str| -> Fallible<()> {
+    let screenshot_fs = |url: &str, fname: &str| -> Fallible<()> {
+        let tab = browser.navigate_to_macro_page(url)?;
         log::trace!("Waiting for Options...");
         tab.find_element(OPTIONS)?.click()?;
         log::trace!("Waiting for Fullscreen...");
         tab.wait_for_element(OPT_FULLSCREEN)?.click()?;
         thread::sleep(time::Duration::from_secs(2)); // Wait for the gfx
+        screenshot(tab, fname)
+    };
+
+    let screenshot_opt = |url: &str, fname: &str| -> Fallible<()> {
+        let tab = browser.navigate_to_macro_page(url)?;
+        tab.find_element(OPTIONS)?.click()?;
         screenshot(tab, fname)
     };
 
@@ -135,18 +143,11 @@ fn screenshots() -> Fallible<()> {
         "nom_named_attr.png",
     )?;
 
-    screenshot_fs(
-        browser.navigate_to_macro_page(URL_PANIC)?,
-        "std_panic_fs.png",
-    )?;
-    screenshot_fs(
-        browser.navigate_to_macro_page(URL_NAMED)?,
-        "nom_named_attr_fs.png",
-    )?;
+    screenshot_fs(URL_PANIC, "std_panic_fs.png")?;
+    screenshot_fs(URL_NAMED, "nom_named_attr_fs.png")?;
 
-    let tab = browser.navigate_to_macro_page(URL_PANIC)?;
-    tab.find_element(OPTIONS)?.click()?;
-    screenshot(tab, "std_panic_options.png")?;
+    screenshot_opt(URL_PANIC, "std_panic_options.png")?;
+    screenshot_opt(URL_INFO, "std_info_options.png")?;
 
     Ok(())
 }
@@ -158,9 +159,11 @@ mod tests {
         "#main-content > div.docblock.item-decl > div > div > div.railroad_container > svg > g > g.legend, #main > div.docblock.type-decl > div > div > div.railroad_container > svg > g > g.legend";
     const MAIN: &str = "#main-content, #main";
     const MODAL_CONTAINER: &str = "#main-content > div.docblock.item-decl > div > div > div.railroad_modal, #main > div.docblock.type-decl > div > div > div.railroad_modal";
-    const OPT_LEGEND: &str = "#main-content > div.docblock.item-decl > div > div > div.railroad_container > div > div > div > ul > li:nth-child(4) > label, #main > div.docblock.type-decl > div > div > div.railroad_container > div > div > div > ul > li:nth-child(4) > label";
-    const URL_BITFLAGS: &str = "https://docs.rs/bitflags/1.1.0/bitflags/macro.bitflags.html";
+    const OPT_LEGEND: &str = "#main-content > div.docblock.item-decl > div > div > div.railroad_container > div.railroad_dropdown_content.railroad_dropdown_show > ul > li:nth-child(4) > label, #main > div.docblock.type-decl > div > div > div.railroad_container > div.railroad_dropdown_content.railroad_dropdown_show > ul > li:nth-child(4) > label";
     const MACRO_BLOCK: &str = "#main-content > div.docblock.item-decl > div > div > pre, #main > div.docblock.type-decl > div > div > pre";
+    const RAILROAD_CONTAINER: &str = "#main-content > div.docblock.item-decl > div > div > div.railroad_container, #main > div.docblock.type-decl > div > div > div.railroad_container";
+    const DROPDOWN_CONTAINER: &str = "#main-content > div.docblock.item-decl > div > div > div.railroad_container > div.railroad_dropdown_content.railroad_dropdown_show, #main > div.docblock.type-decl > div > div > div.railroad_container > div.railroad_dropdown_content.railroad_dropdown_show";
+    const URL_BITFLAGS: &str = "https://docs.rs/bitflags/1.1.0/bitflags/macro.bitflags.html";
 
     fn init_log() {
         let _ = env_logger::builder().is_test(true).try_init();
@@ -187,7 +190,7 @@ mod tests {
         tab.find_element(MODAL_CONTAINER).map(|_| ())
     }
 
-    fn test_placement(browser: &Browser, url: &str) -> Fallible<()> {
+    fn test_placement(browser: &Browser, url: &str) -> Fallible<Arc<headless_chrome::Tab>> {
         let tab = browser.navigate_to_macro_page(url)?;
         log::trace!("Looking for main-box");
         let main_box = tab.find_element(MAIN)?.get_box_model()?;
@@ -202,7 +205,7 @@ mod tests {
         assert!(inline_dia_box
             .content
             .within_horizontal_bounds_of(&macro_block_box.margin));
-        Ok(())
+        Ok(tab)
     }
 
     #[test]
@@ -216,13 +219,49 @@ mod tests {
     }
 
     #[test]
+    fn issue13() -> Fallible<()> {
+        init_log();
+        let browser = Browser::new()?;
+
+        let test = |browser: &Browser, url: &str| -> Fallible<()> {
+            let tab = test_placement(&browser, url)?;
+            tab.find_element(OPTIONS)?.click()?;
+            log::trace!("Looking for dropdown-box");
+            let railroad_box = tab.find_element(RAILROAD_CONTAINER)?.get_box_model()?;
+            log::trace!("Looking for dropdown-box");
+            let dropdown_box = tab.find_element(DROPDOWN_CONTAINER)?.get_box_model()?;
+
+            assert_eq!(
+                railroad_box.content.most_right(),
+                dropdown_box.margin.most_right()
+            );
+            let most_bottom = railroad_box
+                .margin
+                .top_right
+                .y
+                .max(railroad_box.margin.top_left.y)
+                .max(railroad_box.margin.bottom_right.y)
+                .max(railroad_box.margin.bottom_left.y);
+            assert_eq!(most_bottom, dropdown_box.margin.most_top());
+            Ok(())
+        };
+
+        test(&browser, URL_PANIC)?;
+        test(&browser, URL_INFO)
+    }
+
+    #[test]
     fn set_options() -> Fallible<()> {
         init_log();
         let browser = Browser::new()?;
         let tab = browser.testable_tab()?;
+        log::trace!("Looking for legend");
         assert!(tab.find_element(LEGEND).is_ok()); // Legend is there?
+        log::trace!("Opening options...");
         tab.find_element(OPTIONS)?.click()?; // Open the options
+        log::trace!("Disabling legend...");
         tab.wait_for_element(OPT_LEGEND)?.click()?; // Disable legend
+        log::trace!("Waiting for legend to disappear...");
         assert!(headless_chrome::util::Wait::default()
             .until(|| dbg!(tab.find_element(LEGEND)).err())
             .is_ok());

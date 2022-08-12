@@ -32,8 +32,9 @@ async function load() {
 
 
         const diagramOptions = new wasm_bindgen.DiagramOptions();
-        let iconsContainer = createIcons(macroSrc, diagramOptions);
+        let [dropdownContainer, iconsContainer] = createIcons(macroSrc, diagramOptions);
         svgContainer.appendChild(iconsContainer);
+        svgContainer.appendChild(dropdownContainer);
 
         parentNode.appendChild(newNode);
         updateDiagram(macroSrc, diagramOptions);
@@ -149,7 +150,6 @@ function createIcons(macroSrc, diagramOptions) {
         dropdownContainer.classList.toggle('railroad_dropdown_show');
     };
     optionsContainer.appendChild(optionsIcon);
-    optionsContainer.appendChild(dropdownContainer);
     iconsContainer.appendChild(optionsContainer);
 
     // The fullscreen-toggle
@@ -161,7 +161,7 @@ function createIcons(macroSrc, diagramOptions) {
         modalContainer.classList.add('railroad_active');
     };
     iconsContainer.appendChild(fullscreenIcon);
-    return iconsContainer;
+    return [dropdownContainer, iconsContainer];
 }
 
 // The update function, called when options are set and to create the initial diagram
