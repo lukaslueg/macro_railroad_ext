@@ -1,6 +1,6 @@
 name: Clippy, Format & Test
 
-on: [pull_request, push]
+on: [pull_request, push, workflow_dispatch]
 
 jobs:
   fmt:
