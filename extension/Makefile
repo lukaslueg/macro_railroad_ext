@@ -27,11 +27,12 @@ clean:
 	-rmdir wasm
 	cd wasm_src && cargo clean
 	cd integration_test && cargo clean
+	cd chrome_helper && cargo clean
 
 .PHONY: test
 test: packed.zip
 	cd wasm_src && cargo test --release
-	export RUST_BACKTRACE=1 MACRO_RAILROAD_PACKED="$(abspath $<)"; cargo test --manifest-path integration_test/Cargo.toml
+	export RUST_BACKTRACE=1 MACRO_RAILROAD_PACKED="$(abspath $<)"; cargo test --manifest-path integration_test/Cargo.toml -- --test-threads=1
 
 .PHONY: screenshots
 screenshots: packed.zip

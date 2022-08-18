@@ -1,0 +1,77 @@
+name: Clippy, Format & Test
+
+on: [pull_request, push]
+
+jobs:
+  fmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: rustup component add rustfmt
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --manifest-path=extension/wasm_src/Cargo.toml --all -- --check
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --manifest-path=extension/integration_test/Cargo.toml --all -- --check
+
+  clippy:
+    name: cargo clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: rustup component add clippy
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --manifest-path=extension/wasm_src/Cargo.toml -- -D warnings
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --manifest-path=extension/integration_test/Cargo.toml -- -D warnings
+
+  test:
+    name: Full build and integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Install Chrome-Helper
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --path extension/chrome_helper
+      - name: Install wasm-pack
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: wasm-pack
+      - name: Install Chrome
+        run: |
+          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          apt-get update
+          apt-get install -y --no-install-recommends google-chrome-stable
+      - name: Install xvfb
+        run: apt-get install -y --no-install-recommends xvfb
+      - run: RUST_LOG=integration_test=debug CHROME="$HOME/.cargo/bin/chrome_helper" xvfb-run -a --server-args="-screen 0 1600x1400x24" make -C extension screenshots
+      - run: RUST_LOG=headless_chrome=debug,integration_test=debug CHROME="$HOME/.cargo/bin/chrome_helper" xvfb-run -a --server-args="-screen 0 1600x1400x24" make -C extension test

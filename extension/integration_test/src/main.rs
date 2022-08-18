@@ -18,6 +18,7 @@ struct Browser {
 
 impl Browser {
     fn extract_extension() -> Fallible<tempdir::TempDir> {
+        log::debug!("Extracting extension...");
         let packed_path =
             env::var_os("MACRO_RAILROAD_PACKED").expect("Archive path not given by env");
         let packed_f = fs::File::open(packed_path)?;
@@ -38,9 +39,11 @@ impl Browser {
 
     fn new() -> Fallible<Self> {
         let ext = Self::extract_extension()?;
+        log::debug!("Starting browser...");
         let browser = headless_chrome::Browser::new(
             headless_chrome::LaunchOptionsBuilder::default()
                 .extensions(vec![ext.path().as_ref()])
+                .window_size(Some((1600, 1400)))
                 .path(Some(
                     headless_chrome::browser::default_executable().unwrap(),
                 ))
@@ -57,18 +60,18 @@ impl Browser {
         url: &str,
     ) -> Fallible<Arc<headless_chrome::browser::tab::Tab>> {
         let tab = self.wait_for_initial_tab()?;
-        log::trace!("Navigating to `{}`", &url);
+        log::debug!("Navigating to `{}`", &url);
         tab.navigate_to(url)?;
-        log::trace!("Waiting for decl-element");
+        log::debug!("Waiting for decl-element");
         // Ignore if the selector is not there, might be uncollapsed already...
         if let Ok(elem) =
             tab.wait_for_element("#main > div.toggle-wrapper.collapsed > a > span.toggle-label")
         {
             elem.click()?;
         }
-        log::trace!("Waiting for diagram");
+        log::debug!("Waiting for diagram");
         tab.wait_for_element(DIAGRAM_CONTAINER)?;
-        log::trace!("Successfully navigated");
+        log::debug!("Successfully navigated");
         Ok(tab)
     }
 
@@ -122,9 +125,9 @@ fn screenshots() -> Fallible<()> {
 
     let screenshot_fs = |url: &str, fname: &str| -> Fallible<()> {
         let tab = browser.navigate_to_macro_page(url)?;
-        log::trace!("Waiting for Options...");
+        log::debug!("Waiting for Options...");
         tab.find_element(OPTIONS)?.click()?;
-        log::trace!("Waiting for Fullscreen...");
+        log::debug!("Waiting for Fullscreen...");
         tab.wait_for_element(OPT_FULLSCREEN)?.click()?;
         thread::sleep(time::Duration::from_secs(2)); // Wait for the gfx
         screenshot(tab, fname)
@@ -192,13 +195,13 @@ mod tests {
 
     fn test_placement(browser: &Browser, url: &str) -> Fallible<Arc<headless_chrome::Tab>> {
         let tab = browser.navigate_to_macro_page(url)?;
-        log::trace!("Looking for main-box");
+        log::debug!("Looking for main-box");
         let main_box = tab.find_element(MAIN)?.get_box_model()?;
-        log::trace!("Looking for macro-box");
+        log::debug!("Looking for macro-box");
         let macro_block_box = tab.find_element(MACRO_BLOCK)?.get_box_model()?;
         assert!(macro_block_box.content.within_bounds_of(&main_box.margin));
 
-        log::trace!("Looking for diagram-box");
+        log::debug!("Looking for diagram-box");
         let inline_dia_box = tab.find_element(DIAGRAM_CONTAINER)?.get_box_model()?;
         assert!(inline_dia_box.content.within_bounds_of(&main_box.margin));
         assert!(inline_dia_box.content.above(&macro_block_box.margin));
@@ -226,9 +229,9 @@ mod tests {
         let test = |browser: &Browser, url: &str| -> Fallible<()> {
             let tab = test_placement(&browser, url)?;
             tab.find_element(OPTIONS)?.click()?;
-            log::trace!("Looking for dropdown-box");
+            log::debug!("Looking for dropdown-box");
             let railroad_box = tab.find_element(RAILROAD_CONTAINER)?.get_box_model()?;
-            log::trace!("Looking for dropdown-box");
+            log::debug!("Looking for dropdown-box");
             let dropdown_box = tab.find_element(DROPDOWN_CONTAINER)?.get_box_model()?;
 
             assert_eq!(
@@ -247,7 +250,9 @@ mod tests {
         };
 
         test(&browser, URL_PANIC)?;
-        test(&browser, URL_INFO)
+        test(&browser, URL_INFO)?;
+
+        Ok(())
     }
 
     #[test]
@@ -255,15 +260,15 @@ mod tests {
         init_log();
         let browser = Browser::new()?;
         let tab = browser.testable_tab()?;
-        log::trace!("Looking for legend");
+        log::debug!("Looking for legend");
         assert!(tab.find_element(LEGEND).is_ok()); // Legend is there?
-        log::trace!("Opening options...");
+        log::debug!("Opening options...");
         tab.find_element(OPTIONS)?.click()?; // Open the options
-        log::trace!("Disabling legend...");
+        log::debug!("Disabling legend...");
         tab.wait_for_element(OPT_LEGEND)?.click()?; // Disable legend
-        log::trace!("Waiting for legend to disappear...");
+        log::debug!("Waiting for legend to disappear...");
         assert!(headless_chrome::util::Wait::default()
-            .until(|| dbg!(tab.find_element(LEGEND)).err())
+            .until(|| tab.find_element(LEGEND).err())
             .is_ok());
         Ok(())
     }

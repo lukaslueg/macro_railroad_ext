@@ -11,3 +11,5 @@ extension/std_panic_fs.png
 extension/std_panic.png
 extension/std_panic_options.png
 extension/std_info_options.png
+extension/chrome_helper/target/
+extension/chrome_helper/Cargo.lock
