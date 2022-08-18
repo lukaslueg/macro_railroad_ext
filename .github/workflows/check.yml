@@ -67,11 +67,11 @@ jobs:
           args: wasm-pack
       - name: Install Chrome
         run: |
-          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
           echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-          apt-get update
-          apt-get install -y --no-install-recommends google-chrome-stable
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends google-chrome-stable
       - name: Install xvfb
-        run: apt-get install -y --no-install-recommends xvfb
+        run: sudo apt-get install -y --no-install-recommends xvfb
       - run: RUST_LOG=integration_test=debug CHROME="$HOME/.cargo/bin/chrome_helper" xvfb-run -a --server-args="-screen 0 1600x1400x24" make -C extension screenshots
       - run: RUST_LOG=headless_chrome=debug,integration_test=debug CHROME="$HOME/.cargo/bin/chrome_helper" xvfb-run -a --server-args="-screen 0 1600x1400x24" make -C extension test
