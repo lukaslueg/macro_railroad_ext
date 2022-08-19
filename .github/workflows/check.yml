@@ -13,7 +13,7 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      - run: rustup component add rustfmt
+          components: rustfmt
       - name: Check extension
         uses: actions-rs/cargo@v1
         with:
@@ -35,7 +35,7 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      - run: rustup component add clippy
+          components: clippy
       - name: Check extension
         uses: actions-rs/cargo@v1
         with:
@@ -59,16 +59,20 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+          target: wasm32-unknown-unknown
       - name: Install Chrome-Helper
         uses: actions-rs/cargo@v1
         with:
           command: install
           args: --path extension/chrome_helper
       - name: Install wasm-pack
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/install@v0.1
         with:
-          command: install
-          args: wasm-pack
+          crate: wasm-pack
+          version: latest
+          use-tool-cache: true
+      - name: Build extension
+        run: make -C extension packed.zip
       - name: Install Chrome
         run: |
           wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
@@ -79,5 +83,11 @@ jobs:
         run: sudo apt-get install -y --no-install-recommends xvfb
       - name: Take screenshots
         run: RUST_LOG=integration_test=debug CHROME="$HOME/.cargo/bin/chrome_helper" xvfb-run -a --server-args="-screen 0 1600x1400x24" make -C extension screenshots
+      - name: Upload screenshots
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots
+          path: extension/*.png
       - name: Run tests
         run: RUST_LOG=headless_chrome=debug,integration_test=debug CHROME="$HOME/.cargo/bin/chrome_helper" xvfb-run -a --server-args="-screen 0 1600x1400x24" make -C extension test
