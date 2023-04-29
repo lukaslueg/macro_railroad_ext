@@ -1,4 +1,4 @@
-use railroad::RailroadNode;
+use railroad::Node;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
