@@ -29,17 +29,20 @@ pub fn start() {
 }
 
 #[wasm_bindgen(js_name = getRailroadDefaultCss)]
+#[must_use]
 pub fn get_railroad_default_css() -> JsValue {
     railroad::DEFAULT_CSS.into()
 }
 
 #[wasm_bindgen(js_name = getRailroadDigramCss)]
+#[must_use]
 pub fn get_railroad_digram_css() -> JsValue {
     macro_railroad::diagram::CSS.into()
 }
 
 #[derive(Debug)]
 #[wasm_bindgen]
+#[allow(clippy::struct_excessive_bools)]
 pub struct DiagramOptions {
     #[wasm_bindgen(js_name = hideInternal)]
     pub hide_internal: bool,
@@ -63,6 +66,7 @@ pub struct Diagram {
 #[wasm_bindgen]
 impl Diagram {
     #[wasm_bindgen(getter)]
+    #[must_use]
     pub fn svg(&self) -> String {
         self.svg.clone()
     }
@@ -71,6 +75,7 @@ impl Diagram {
 #[wasm_bindgen]
 impl DiagramOptions {
     #[wasm_bindgen(constructor)]
+    #[must_use]
     pub fn new() -> Self {
         DiagramOptions {
             hide_internal: true,
@@ -91,7 +96,7 @@ impl Default for DiagramOptions {
 #[wasm_bindgen(js_name = toDiagram)]
 pub fn to_diagram(src: &str, options: &DiagramOptions) -> Result<Diagram, JsValue> {
     let macro_rules = macro_railroad::parser::parse(src)
-        .map_err(|e| format!("macro_railroad parse failed: {}", e))?;
+        .map_err(|e| format!("macro_railroad parse failed: {e}"))?;
     let mut tree = macro_railroad::lowering::MacroRules::from(macro_rules);
 
     if options.hide_internal {
